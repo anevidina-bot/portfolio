@@ -31,6 +31,7 @@ function openCourse(event, project) {
   frame.allowFullscreen = true;
   frame.referrerPolicy = 'strict-origin-when-cross-origin';
   frame.addEventListener('load', () => {
+    if (dialog.open) closeButton.focus();
     // На GitHub Pages курс и портфолио имеют общий origin.
     // Клавиши из iframe не всплывают в родительский документ.
     try {
