@@ -30,6 +30,19 @@ function openCourse(event, project) {
   frame.src = project.url;
   frame.allowFullscreen = true;
   frame.referrerPolicy = 'strict-origin-when-cross-origin';
+  frame.addEventListener('load', () => {
+    // На GitHub Pages курс и портфолио имеют общий origin.
+    // Клавиши из iframe не всплывают в родительский документ.
+    try {
+      frame.contentDocument?.addEventListener('keydown', (keyEvent) => {
+        if (keyEvent.key === 'Escape') {
+          keyEvent.preventDefault();
+          keyEvent.stopPropagation();
+          closeCourse();
+        }
+      }, true);
+    } catch { /* Для внешних доменов доступны кнопка закрытия и Escape вне iframe. */ }
+  });
   frameContainer.replaceChildren(frame);
   document.body.classList.add('modal-open');
   dialog.showModal();
@@ -73,3 +86,4 @@ for (const [index, project] of (window.portfolioProjects || []).entries()) {
   document.querySelector('#projects').append(card);
 }
 document.querySelector('#year').textContent = new Date().getFullYear();
+
