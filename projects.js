@@ -27,6 +27,7 @@ window.portfolioProjects = [
     role: 'Полный цикл: проектирование и сборка курса',
     tools: ['iSpring Suite', 'PowerPoint'],
     image: './assets/writing-preview.webp',
+    previewScale: 1.3,
     imageAlt: 'Обложка курса «Тайное искусство делового письма» с иллюстрацией библиотеки',
     url: './courses/business-writing/index.html'
   },
@@ -37,6 +38,7 @@ window.portfolioProjects = [
     role: 'Полный цикл: проектирование и сборка курса',
     tools: ['iSpring Suite', 'PowerPoint'],
     image: './assets/life-preview.webp',
+    previewScale: 1.3,
     imageAlt: 'Начальный экран курса «Жизнь.PRO» с панорамой города будущего',
     url: './courses/life-pro/index.html'
   }

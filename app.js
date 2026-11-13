@@ -66,6 +66,10 @@ for (const [index, project] of (window.portfolioProjects || []).entries()) {
   preview.setAttribute('aria-label', `Посмотреть курс «${project.title}»`);
   const image = make('img');
   Object.assign(image, { src: project.image, alt: project.imageAlt, width: 1440, height: 900, loading: 'lazy' });
+  if (project.previewScale) {
+    image.style.setProperty('--preview-scale', project.previewScale);
+    image.style.objectFit = 'cover';
+  }
   const play = make('span', 'preview-label', 'Посмотреть курс ↗');
   preview.append(image, play);
   preview.addEventListener('click', (event) => openCourse(event, project));
