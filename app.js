@@ -86,5 +86,73 @@ for (const [index, project] of (window.portfolioProjects || []).entries()) {
   card.append(preview, info);
   document.querySelector('#projects').append(card);
 }
-document.querySelector('#year').textContent = new Date().getFullYear();
 
+const carousel = document.querySelector('#projects');
+const slides = [...carousel.querySelectorAll('.project')];
+if (slides.length > 1) {
+  carousel.classList.add('carousel');
+  carousel.setAttribute('role', 'region');
+  carousel.setAttribute('aria-roledescription', 'карусель');
+  carousel.setAttribute('aria-label', 'Примеры работ');
+  const controls = make('div', 'carousel-controls');
+  const caption = make('span', 'carousel-caption', 'ПРИМЕРЫ РАБОТ');
+  const counter = make('span', 'carousel-counter');
+  counter.setAttribute('aria-hidden', 'true');
+  const previous = make('button', 'carousel-arrow', '←');
+  const next = make('button', 'carousel-arrow', '→');
+  previous.type = next.type = 'button';
+  previous.setAttribute('aria-label', 'Предыдущий курс');
+  next.setAttribute('aria-label', 'Следующий курс');
+  const announcement = make('span', 'visually-hidden');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-atomic', 'true');
+  controls.append(caption, counter, previous, next, announcement);
+  carousel.before(controls);
+  let currentSlide = 0;
+  function showSlide(index, announce = true) {
+    currentSlide = (index + slides.length) % slides.length;
+    slides.forEach((slide, i) => {
+      const active = i === currentSlide;
+      slide.classList.toggle('is-active', active);
+      slide.inert = !active;
+      slide.setAttribute('aria-hidden', String(!active));
+      slide.setAttribute('role', 'group');
+      slide.setAttribute('aria-roledescription', 'слайд');
+      slide.setAttribute('aria-label', `${i + 1} из ${slides.length}`);
+    });
+    counter.textContent = `${String(currentSlide + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+    if (announce) announcement.textContent = `Курс ${currentSlide + 1} из ${slides.length}: ${slides[currentSlide].querySelector('h3').textContent}`;
+  }
+  previous.addEventListener('click', () => showSlide(currentSlide - 1));
+  next.addEventListener('click', () => showSlide(currentSlide + 1));
+  function handleArrow(event) {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    const withinSlide = carousel.contains(document.activeElement);
+    showSlide(currentSlide + (event.key === 'ArrowRight' ? 1 : -1));
+    if (withinSlide) slides[currentSlide].querySelector('a').focus({ preventScroll: true });
+  }
+  controls.addEventListener('keydown', handleArrow);
+  carousel.addEventListener('keydown', handleArrow);
+  let touchStart;
+  let suppressClick = false;
+  carousel.addEventListener('pointerdown', event => {
+    if (event.pointerType === 'touch') touchStart = { x: event.clientX, y: event.clientY };
+  });
+  carousel.addEventListener('pointercancel', () => { touchStart = null; });
+  carousel.addEventListener('pointerup', event => {
+    if (!touchStart || event.pointerType !== 'touch') return;
+    const dx = event.clientX - touchStart.x;
+    const dy = event.clientY - touchStart.y;
+    touchStart = null;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    suppressClick = true;
+    showSlide(currentSlide + (dx < 0 ? 1 : -1));
+    setTimeout(() => { suppressClick = false; }, 400);
+  });
+  carousel.addEventListener('click', event => {
+    if (suppressClick) { event.preventDefault(); event.stopPropagation(); }
+  }, true);
+  showSlide(0, false);
+}
+document.querySelector('#year').textContent = new Date().getFullYear();
